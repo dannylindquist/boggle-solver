@@ -1,5 +1,5 @@
 type MyNode<T> = Record<string, T>;
-interface Node extends MyNode<Node & { word?: boolean }> {}
+interface Node extends MyNode<Node & { word?: boolean; common?: boolean }> {}
 
 export class RadixTree {
   head: Node;
@@ -7,17 +7,20 @@ export class RadixTree {
   constructor(word_list: string[]) {
     this.head = {};
     for (const word of word_list) {
-      this.insertWord(word);
+      const common = word.endsWith("+");
+      const trimmed = common ? word.substring(0, word.length - 1) : word;
+      this.insertWord(word, common);
     }
   }
 
-  insertWord(word: string) {
+  insertWord(word: string, common = false) {
     let node = this.head;
     for (let index = 0; index < word.length; index++) {
       const letter = word[index];
       if (node[letter]) {
         if (index === word.length - 1) {
           node[letter].word = true;
+          node[letter].common = common;
         } else {
           node = node[letter];
         }
@@ -26,6 +29,8 @@ export class RadixTree {
         if (index === word.length - 1) {
           // @ts-ignore
           node.word = true;
+          // @ts-ignore
+          node.common = common;
         }
       }
     }
@@ -54,6 +59,11 @@ export class RadixTree {
         return false;
       }
     }
-    return !!node.word;
+    if (node.word) {
+      return {
+        common: node.common,
+      };
+    }
+    return false;
   }
 }

@@ -8,59 +8,70 @@ type Board = string[];
 // top: index - 4
 // bottom: index + 4
 
+const directions = [
+  [-1, -1],
+  [0, -1],
+  [1, -1],
+  [1, 0],
+  [-1, 0],
+  [-1, 1],
+  [0, 1],
+  [1, 1],
+];
+
 function walk_index(
   current: string,
   index: number,
   board: Board,
-  possible: string[],
-  hitIndicies: Set<number>
+  possible: { word: string; path: string }[],
+  hitIndicies: number,
+  path: string
 ) {
-  if (hitIndicies.has(index) || index < 0 || index >= 16) {
+  if ((hitIndicies & (1 << index)) > 0 || index < 0 || index >= 16) {
     return;
   }
   const next_step = (current += board[index].toLowerCase());
+  const new_path = path + index.toString(16);
   if (next_step.length >= 3) {
     if (!tree.startsWith(next_step)) {
       return;
     }
-    possible.push(next_step);
+    possible.push({ word: next_step, path: new_path });
   }
-  hitIndicies.add(index);
-  // top left
-  walk_index(next_step, index - 5, board, possible, new Set(hitIndicies));
-  // top
-  walk_index(next_step, index - 4, board, possible, new Set(hitIndicies));
-  // top right
-  walk_index(next_step, index - 3, board, possible, new Set(hitIndicies));
-  // left
-  walk_index(next_step, index - 1, board, possible, new Set(hitIndicies));
-  // right
-  walk_index(next_step, index + 1, board, possible, new Set(hitIndicies));
-  // bottom left
-  walk_index(next_step, index + 3, board, possible, new Set(hitIndicies));
-  // bottom
-  walk_index(next_step, index + 4, board, possible, new Set(hitIndicies));
-  // bottom right
-  walk_index(next_step, index + 5, board, possible, new Set(hitIndicies));
+  const visited = hitIndicies | (1 << index);
+
+  for (const [dx, dy] of directions) {
+    const newRow = Math.floor(index / 4) + dx;
+    const newCol = (index % 4) + dy;
+    if (newCol < 0 || newCol > 3 || newRow < 0 || newRow > 3) {
+      continue;
+    }
+    const nextIndex = 4 * newRow + newCol;
+    walk_index(next_step, nextIndex, board, possible, visited, new_path);
+  }
 }
 
 export function solve_board(board: Board) {
-  const found_words = new Set<string>();
+  const found_words: { word: string; path: string; common: boolean }[] = [];
   for (let index = 0; index < 16; index++) {
-    const possible_words: string[] = [];
-    walk_index("", index, board, possible_words, new Set<number>());
+    const possible_words: { word: string; path: string }[] = [];
+    walk_index("", index, board, possible_words, 0, "");
     for (const word of possible_words) {
-      if (tree.findWord(word)) {
-        found_words.add(word);
+      const isWord = tree.findWord(word.word);
+      if (isWord) {
+        found_words.push({
+          ...word,
+          common: !!isWord.common,
+        });
       }
     }
   }
   return [...found_words].reduce((agg, val) => {
-    if (agg[val.length]) {
-      agg[val.length].push(val);
+    if (agg[val.word.length]) {
+      agg[val.word.length].push(val);
     } else {
-      agg[val.length] = [val];
+      agg[val.word.length] = [val];
     }
     return agg;
-  }, {} as Record<number, string[]>);
+  }, {} as Record<number, { word: string; path: string; common: boolean }[]>);
 }
