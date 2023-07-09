@@ -41,8 +41,8 @@ function walk_index(
   const visited = hitIndicies | (1 << index);
 
   for (const [dx, dy] of directions) {
-    const newRow = Math.floor(index / 4) + dx;
-    const newCol = (index % 4) + dy;
+    const newRow = Math.floor(index / 4) + dy;
+    const newCol = (index % 4) + dx;
     if (newCol < 0 || newCol > 3 || newRow < 0 || newRow > 3) {
       continue;
     }
