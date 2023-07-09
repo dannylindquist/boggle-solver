@@ -9,7 +9,7 @@ export class RadixTree {
     for (const word of word_list) {
       const common = word.endsWith("+");
       const trimmed = common ? word.substring(0, word.length - 1) : word;
-      this.insertWord(word, common);
+      this.insertWord(trimmed, common);
     }
   }
 
