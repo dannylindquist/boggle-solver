@@ -1,22 +1,22 @@
 import { solve_board } from "./solveBoard";
 
 const board = [
-  "D",
-  "L",
-  "A",
-  "I",
   "S",
+  "R",
   "E",
-  "M",
-  "K",
-  "O",
   "U",
   "E",
-  "T",
-  "N",
   "A",
-  "W",
   "A",
+  "H",
+  "V",
+  "F",
+  "L",
+  "A",
+  "S",
+  "F",
+  "I",
+  "E",
 ];
 
 let temp = "";

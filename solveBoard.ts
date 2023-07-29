@@ -53,16 +53,18 @@ function walk_index(
 
 export function solve_board(board: Board) {
   const found_words: { word: string; path: string; common: boolean }[] = [];
+  const uniqueWords = new Set();
   for (let index = 0; index < 16; index++) {
     const possible_words: { word: string; path: string }[] = [];
     walk_index("", index, board, possible_words, 0, "");
     for (const word of possible_words) {
       const isWord = tree.findWord(word.word);
-      if (isWord) {
+      if (isWord && !uniqueWords.has(word.word)) {
         found_words.push({
           ...word,
           common: !!isWord.common,
         });
+        uniqueWords.add(word.word);
       }
     }
   }
